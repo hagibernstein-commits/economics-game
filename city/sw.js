@@ -1,4 +1,5 @@
-self.addEventListener('fetch',e=>{if(new URL(e.request.url).pathname==='/family-hub/gatekeeper.js'){e.respondWith(fetch(e.request,{cache:'reload'}));}});
+// Family gatekeeper: network first, cached copy so installed games can start offline.
+self.addEventListener('fetch',e=>{if(new URL(e.request.url).pathname==='/family-hub/gatekeeper.js'){e.respondWith(fetch(e.request,{cache:'reload'}).then(r=>{if(r.ok){const cp=r.clone();caches.open('fc-gatekeeper').then(c=>c.put(e.request,cp));}return r;}).catch(()=>caches.open('fc-gatekeeper').then(c=>c.match(e.request))));return;}});
 const CACHE = 'econ-city-v15-family2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', '../icons/icon-192.png', '../icons/icon-512.png', '../icons/maskable-512.png', '../icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
